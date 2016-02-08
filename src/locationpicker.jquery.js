@@ -10,7 +10,8 @@
             position: new google.maps.LatLng(54.19335, -3.92695),
             map: _map,
             title: "Drag Me",
-            draggable: options.draggable
+            draggable: options.draggable,
+            clickToCenter : options.clickToCenter
         });
         return {
             map: _map,
@@ -363,7 +364,8 @@
                 radius: settings.radius,
                 locationName: settings.locationName,
                 settings: settings,
-                draggable: settings.draggable
+                draggable: settings.draggable,
+                clickToCenter : settings.clickToCenter
             });
             $target.data("locationpicker", gmapContext);
             // Subscribe GMap events
@@ -374,6 +376,22 @@
                     updateInputValues(gmapContext.settings.inputBinding, gmapContext);
                 });
             });
+
+            if(settings.clickToCenter){
+
+                google.maps.event.addListener(gmapContext.map,'click',function(event){
+
+                  GmUtility.setPosition(gmapContext, event.latLng , function(context) {
+                        var currentLocation = GmUtility.locationFromLatLng(gmapContext.location);
+                        context.settings.onchanged.apply(gmapContext.domContainer, [ currentLocation, context.radius, true ]);
+                        updateInputValues(gmapContext.settings.inputBinding, gmapContext);
+                      });
+
+                })
+
+            }
+
+            
             GmUtility.setPosition(gmapContext, new google.maps.LatLng(settings.location.latitude, settings.location.longitude), function(context){
                 updateInputValues(settings.inputBinding, gmapContext);
                 // Set  input bindings if needed
@@ -398,6 +416,7 @@
         enableAutocompleteBlur: false,
         enableReverseGeocode: true,
         draggable: true,
+        clickToCenter : true,
         onchanged: function(currentLocation, radius, isMarkerDropped) {},
         onlocationnotfound: function(locationName) {},
         oninitialized: function (component) {}
